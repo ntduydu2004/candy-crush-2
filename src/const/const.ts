@@ -7,16 +7,22 @@ export let CONST = {
     tileHeight: 72,
     candyTypes: [
         'cookie1',
-        'cookie2',
         'croissant',
         'cupcake',
         'donut',
-        'eclair',
         'macaroon',
-        'pie',
         'poptart1',
-        'poptart2',
-        'starcookie1',
-        'starcookie2',
+        // 'starcookie1',
     ],
+    around: [
+        {x: 1, y: 1},
+        {x: 0, y: 1},
+        {x: 1, y: 0},
+        {x: -1, y: -1},
+        {x: -1, y: 0},
+        {x: -1, y: 1},
+        {x: 0, y: -1},
+        {x: 1, y: -1}
+    ]
 }
+
