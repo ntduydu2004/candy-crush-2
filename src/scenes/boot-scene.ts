@@ -45,7 +45,6 @@ export class BootScene extends Phaser.Scene {
     }
 
     update(): void {
-        // console.log('1')
         this.scene.start('GameScene')
     }
 

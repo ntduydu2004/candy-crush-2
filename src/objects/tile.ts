@@ -18,6 +18,9 @@ export class Tile extends Phaser.GameObjects.Sprite {
     public setTileNumber(tileNum: number): void {
         this.tileNum = tileNum
     }
+    public addTileNumber(tileNum: number): void {
+        this.tileNum += tileNum
+    }
     public getTileNumber(): number {
         return this.tileNum
     }

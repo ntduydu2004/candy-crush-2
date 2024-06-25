@@ -21,11 +21,13 @@ export class TileGrid {
     private secondSelectedTile: Tile | undefined
     private canMove: boolean
     private visited: boolean[][]
+    private isShaking: boolean
     public constructor(scene: Scene, row: number, column: number) {
         this.scene = scene
         this.row = row
         this.column = column
         this.canMove = true
+        this.isShaking = false
         this.objectManager = new ObjectManager(
             (object: Tile) => {
                 object.x = -100
@@ -43,12 +45,11 @@ export class TileGrid {
             }
         )
         this.tileGrid = []
-        this.visited = Array(this.row).fill(Array(this.column).fill(false))
+        this.visited = new Array(this.row).fill(null).map(() => new Array(this.column).fill(false))
         for (let y = 0; y < row; y++) {
             this.tileGrid[y] = []
             for (let x = 0; x < column; x++) {
                 this.tileGrid[y][x] = this.createTile(x, y)
-                // this.tileGrid[y][x]?.explode()
             }
         }
 
@@ -109,10 +110,10 @@ export class TileGrid {
     }
     private checkValid(x: number, y: number): boolean {
         return(
-            0 <= x && x <= this.column &&
-            0 <= y && y <= this.row &&
+            0 <= x && x < this.column &&
+            0 <= y && y < this.row &&
             this.tileGrid[y][x] !== undefined &&
-            this.visited[y][x] === false
+            !this.visited[y][x]
         )
     }
     private createTile(x: number, y: number): Tile {
@@ -287,7 +288,7 @@ export class TileGrid {
                 this.scene.add.tween({
                     targets: tempTile,
                     y: (y + empty) * CONST.tileHeight + CONST.tileHeight / 2,
-                    ease:'linear',
+                    ease:'bounce',
                     duration: 400,
                     delay: 100,
                     onComplete: () => {
@@ -305,7 +306,7 @@ export class TileGrid {
                 this.scene.add.tween({
                     targets: newTile,
                     y: (y + empty) * CONST.tileHeight  + CONST.tileHeight / 2,
-                    ease: 'linear',
+                    ease: 'bounce',
                     duration: 400,
                     repeat: 0,
                     delay: 100,
@@ -327,9 +328,11 @@ export class TileGrid {
         this.secondSelectedTile = undefined
     }
     private handleExplosionChain(x: number, y: number) {
-        
         let tileNum = this.tileGrid[y][x]!.getTileNumber()
+        let textureKey = this.tileGrid[y][x]!.texture.key
+        this.tileGrid[y][x] = undefined
         if (tileNum == 1) return
+        this.isShaking = true
         if (tileNum == 4) {
             for (let i = 0; i < 8; i ++){
                 let newY = y + CONST.around[i].y
@@ -337,9 +340,8 @@ export class TileGrid {
                 if (!this.checkValid(newX, newY)) {
                     continue
                 }
-                this.effectManager.activeTweens++
+                
                 let tile = this.tileGrid[newY][newX]!
-                this.tileGrid[newY][newX] = undefined
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: tile,
@@ -349,6 +351,10 @@ export class TileGrid {
                         this.effectManager.activeTweens--
                         this.releaseTile(tile)
                         if (this.effectManager.activeTweens == 0) {
+                            if (this.isShaking) {
+                                this.effectManager.shake()
+                                this.isShaking = false
+                            }
                             this.fillTiles()
                         }
                     }
@@ -361,7 +367,6 @@ export class TileGrid {
             for (let i = 0; i < this.row; i ++) {
                 if (!this.checkValid(x, i)) continue
                 let tile = this.tileGrid[i][x]!
-                this.tileGrid[i][x] = undefined
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: tile,
@@ -371,6 +376,10 @@ export class TileGrid {
                         this.effectManager.activeTweens--
                         this.releaseTile(tile)
                         if (this.effectManager.activeTweens == 0) {
+                            if (this.isShaking) {
+                                this.effectManager.shake()
+                                this.isShaking = false
+                            }
                             this.fillTiles()
                         }
                     }
@@ -382,7 +391,6 @@ export class TileGrid {
             for (let i = 0; i < this.column; i ++) {
                 if (!this.checkValid(i, y)) continue
                 let tile = this.tileGrid[y][i]!
-                this.tileGrid[y][i] = undefined
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: tileNum,
@@ -392,6 +400,10 @@ export class TileGrid {
                         this.effectManager.activeTweens--
                         this.releaseTile(tile)
                         if (this.effectManager.activeTweens == 0) {
+                            if (this.isShaking) {
+                                this.effectManager.shake()
+                                this.isShaking = false
+                            }
                             this.fillTiles()
                         }
                     }
@@ -400,6 +412,36 @@ export class TileGrid {
                 this.handleExplosionChain(i, y)
             }
         }
+        else if (tileNum >= 6) {
+            for (let i = 0; i < this.row; i ++){
+                for (let j = 0; j < this.column; j ++) {
+                    if (!this.checkValid(j, i)) continue
+                    if (textureKey === this.tileGrid[i][j]!.texture.key) {
+                        let tile = this.tileGrid[i][j]!
+                        this.tileGrid[i][j] = undefined
+                        this.effectManager.activeTweens++
+                        this.scene.add.tween({
+                            targets: tile,
+                            duration: 200,
+                            onComplete: () => {
+                                this.effectManager.explode(j, i)
+                                this.effectManager.activeTweens--
+                                this.releaseTile(tile)
+                                if (this.effectManager.activeTweens == 0) {
+                                    if (this.isShaking) {
+                                        this.effectManager.shake()
+                                        this.isShaking = false
+                                    }
+                                    this.fillTiles()
+                                }
+                            }
+                        })
+                        this.visited[i][j] = true
+                    }
+                }
+            }
+        }
+        
     }
     private checkMatches(): void {
         // reset
@@ -409,15 +451,86 @@ export class TileGrid {
             }
         }
         // check if there is a crossline match 
-        
+        for (let y = 0; y < this.row; y ++) {
+            for (let x = 0; x < this.column; x ++) {
+                if (!this.checkValid(x, y)) continue
+                let countHorizontal = 0
+                let countVertical = 0
+                let group: Tile[] = []
+                // horizontal
+                let i = x - 1
+                while (true) {
+                    if (this.checkValid(i, y) && this.tileGrid[y][i]!.texture.key === this.tileGrid[y][x]!.texture.key) {
+                        countHorizontal ++
+                        group.push(this.tileGrid[y][i]!)
+                        i--
+                    }
+                    else break
+                }
+                i = x + 1
+                while (true) {
+                    if (this.checkValid(i, y) && this.tileGrid[y][i]!.texture.key === this.tileGrid[y][x]!.texture.key) {
+                        countHorizontal ++
+                        group.push(this.tileGrid[y][i]!)
+                        i++
+                    }
+                    else break
+                }
+                if (countHorizontal < 2) continue
+
+                // vertical
+                i = y - 1
+                while (true) {
+                    if (this.checkValid(x, i) && this.tileGrid[i][x]!.texture.key === this.tileGrid[y][x]!.texture.key) {
+                        countVertical ++
+                        group.push(this.tileGrid[i][x]!)
+                        i--
+                    }
+                    else break
+                }
+                i = y + 1
+                while (true) {
+                    if (this.checkValid(x, i) && this.tileGrid[i][x]!.texture.key === this.tileGrid[y][x]!.texture.key) {
+                        countVertical ++
+                        group.push(this.tileGrid[i][x]!)
+                        i++
+                    }
+                    else break
+                }
+                if (countVertical < 2) continue
+                this.tileGrid[y][x]!.addTileNumber(countHorizontal + countVertical)
+                for (let j = 0; j < group.length; j ++) {
+                    let tile = group[j]
+                    let tmpX = (tile.x - CONST.tileWidth / 2) / CONST.tileWidth
+                    let tmpY = (tile.y - CONST.tileHeight / 2) / CONST.tileHeight
+                    this.effectManager.activeTweens++
+                    this.scene.add.tween({
+                        targets: tile,
+                        duration: 200,
+                        x: x * CONST.tileWidth + CONST.tileWidth / 2,
+                        y: y * CONST.tileHeight + CONST.tileHeight / 2,
+                        ease: 'linear',
+                        onComplete: () => {
+                            this.effectManager.activeTweens--
+                            this.releaseTile(tile)
+                            if (this.effectManager.activeTweens == 0) {
+                                this.fillTiles()
+                            }
+                        }
+                    })
+                    this.tileGrid[tmpY][tmpX] = undefined
+                    this.visited[tmpY][tmpX] = true
+                }
+            }
+        }
         // check if there is a horizontal line match
         for (let y = 0; y < this.row; y ++) {
             for (let x = 0; x < this.column; x ++) {
-                if (this.tileGrid[y][x] === undefined) continue
+                if (!this.checkValid(x, y)) continue
                 let count = 0
                 let tmpX = x
                 for (let i = x; i < this.column; i ++) {
-                    if (this.tileGrid[y][i] === undefined) break
+                    if (!this.checkValid(i, y)) break
                     if (this.tileGrid[y][x]!.texture.key === this.tileGrid[y][i]!.texture.key) {
                         count ++
                         if (this.tileGrid[y][i] === this.firstSelectedTile || this.tileGrid[y][i] === this.secondSelectedTile){
@@ -429,8 +542,8 @@ export class TileGrid {
                 if (count == 3) {
                     // release the whole group
                     for (let i = x; i < x + 3; i ++){
+                        if (!this.checkValid(i, y)) continue
                         let tile = this.tileGrid[y][i]!
-                        this.tileGrid[y][i] = undefined
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
@@ -440,18 +553,22 @@ export class TileGrid {
                                 this.effectManager.activeTweens--
                                 this.releaseTile(tile)
                                 if (this.effectManager.activeTweens == 0) {
+                                    if (this.isShaking) {
+                                        this.effectManager.shake()
+                                        this.isShaking = false
+                                    }
                                     this.fillTiles()
                                 }
                             }
                         })
                         this.visited[y][i] = true
-                        // this.handleExplosionChain(i, y)
+                        this.handleExplosionChain(i, y)
                     }
                     
                 }
                 else if (count > 3) {
                     // group them together at this point and release the others
-                    this.tileGrid[y][tmpX]?.setTileNumber(4)
+                    this.tileGrid[y][tmpX]!.addTileNumber(count - 1)
                     for (let i = x; i < x + count; i ++) {
                         if (i == tmpX) continue
                         let tile = this.tileGrid[y][i]!
@@ -469,6 +586,10 @@ export class TileGrid {
                                 this.effectManager.activeTweens--
                                 this.releaseTile(tile)
                                 if (this.effectManager.activeTweens == 0) {
+                                    if (this.isShaking) {
+                                        this.effectManager.shake()
+                                        this.isShaking = false
+                                    }
                                     this.fillTiles()
                                 }
                                 
@@ -482,11 +603,11 @@ export class TileGrid {
         // check if there is a vertical line match
         for (let x = 0; x < this.column; x ++) {
             for (let y = 0; y < this.row; y ++) {
-                if (this.tileGrid[y][x] === undefined) continue
+                if (!this.checkValid(x, y)) continue
                 let count = 0
                 let tmpY = y
                 for (let i = y; i < this.row; i ++) {
-                    if (this.tileGrid[i][x] === undefined) break
+                    if (!this.checkValid(x, i)) break
                     if (this.tileGrid[y][x]!.texture.key === this.tileGrid[i][x]!.texture.key) {
                         count ++
                         if (this.tileGrid[i][x] === this.firstSelectedTile || this.tileGrid[i][x] === this.secondSelectedTile) {
@@ -499,8 +620,8 @@ export class TileGrid {
                 if (count == 3) {
                     // release the whole group
                     for (let i = y; i < y + 3; i ++){
+                        if (!this.checkValid(x, i)) continue
                         let tile = this.tileGrid[i][x]!
-                        this.tileGrid[i][x] = undefined
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
@@ -510,16 +631,20 @@ export class TileGrid {
                                 this.releaseTile(tile)
                                 this.effectManager.activeTweens--
                                 if (this.effectManager.activeTweens == 0) {
+                                    if (this.isShaking) {
+                                        this.effectManager.shake()
+                                        this.isShaking = false
+                                    }
                                     this.fillTiles()
                                 }
                             }
                         })
-                        this.visited[i][x]
-                        // this.handleExplosionChain(x, i)
+                        this.visited[i][x] = true
+                        this.handleExplosionChain(x, i)
                     }
                 }
                 else if (count > 3) {
-                    this.tileGrid[tmpY][x]?.setTileNumber(4)
+                    this.tileGrid[tmpY][x]!.addTileNumber(count - 1)
                     // group them together at this point and release the others
                     for (let i = y; i < y + count; i ++) {
                         if (i == tmpY) continue
@@ -538,6 +663,10 @@ export class TileGrid {
                                 this.effectManager.activeTweens--
                                 this.releaseTile(tile)
                                 if (this.effectManager.activeTweens == 0) {
+                                    if (this.isShaking) {
+                                        this.effectManager.shake()
+                                        this.isShaking = false
+                                    }
                                     this.fillTiles()
                                 }
                             }

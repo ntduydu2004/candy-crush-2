@@ -10,8 +10,8 @@ export let CONST = {
         'croissant',
         'cupcake',
         'donut',
-        'macaroon',
-        'poptart1',
+        // 'macaroon',
+        // 'poptart1',
         // 'starcookie1',
     ],
     around: [

@@ -22,10 +22,10 @@ export class EffectManager {
                 this.explosions[y][x] = this.scene.add.particles(0, 0, "white_flare", {
                     speed: 200,
                     lifespan: 300,
-                    quantity: 5,
+                    quantity: 10,
                     scale: { start: 0.2, end: 0 },
                     emitting: false,
-                    emitZone: { type: 'random', source: tileGrid[y][x]!.getBounds(), quantity: 10 },
+                    emitZone: { type: 'edge', source: new Phaser.Geom.Circle(tileGrid[y][x]!.x, tileGrid[y][x]!.y, 20), quantity: 10 },
                     duration: 200
                 })
             }
@@ -41,6 +41,9 @@ export class EffectManager {
     }
     public explode(x: number, y: number) {
         this.explosions[y][x].start()
+    }
+    public shake() {
+        this.scene.cameras.main.shake(200, 0.03)
     }
     public resetGrids() {
 
