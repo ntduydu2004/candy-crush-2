@@ -47,34 +47,31 @@ export class Tile extends Phaser.GameObjects.Sprite {
     public stopFlame() {
         this.greenFlame.stop()
         this.blueFlame.stop()
+        this.redFlame.stop()
     }
     public setTileNumber(tileNum: number): void {
         this.tileNum = tileNum
+        this.stopFlame()
         if (this.tileNum == 4) {
-            this.stopFlame()
             this.greenFlame.start(20)
         }
         else if (this.tileNum == 5) {
-            this.stopFlame()
             this.blueFlame.start(20)
         }
         else if (this.tileNum > 5) {
-            this.stopFlame()
             this.redFlame.start(20)
         }
     }
     public addTileNumber(tileNum: number): void {
         this.tileNum += tileNum
+        this.stopFlame()
         if (this.tileNum == 4) {
-            this.stopFlame()
             this.greenFlame.start(20)
         }
         else if (this.tileNum == 5) {
-            this.stopFlame()
             this.blueFlame.start(20)
         }
         else if (this.tileNum > 5) {
-            this.stopFlame()
             this.redFlame.start(20)
         }
     }
