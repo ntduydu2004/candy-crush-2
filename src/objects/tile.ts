@@ -5,7 +5,8 @@ export class Tile extends Phaser.GameObjects.Sprite {
     private gridY: number
     private tileNum: number
     private greenFlame: Phaser.GameObjects.Particles.ParticleEmitter
-    private blueFlame
+    private blueFlame: Phaser.GameObjects.Particles.ParticleEmitter
+    private redFlame: Phaser.GameObjects.Particles.ParticleEmitter
     constructor(params: ImageConstructor) {
         super(params.scene, params.x, params.y, params.texture, params.frame)
         this.tileNum = 1
@@ -16,18 +17,27 @@ export class Tile extends Phaser.GameObjects.Sprite {
         this.setScale(0.8)
         this.scene.add.existing(this)
         this.greenFlame = this.scene.add.particles(0, 0, 'white', {
-            color: [ 0x009804 ],
+            color: [ 0xf5f52d, 0x009804, 0x009804, 0x009804],
             colorEase: 'quad.out',
-            lifespan: 500,
+            lifespan: 600,
             angle: { min: -100, max: -80 },
             scale: { start: 1, end: 0, ease: 'sine.out' },
             speed: 100,
             blendMode: 'SCREEN',
         }).startFollow(this).stop().setDepth(0)
         this.blueFlame = this.scene.add.particles(0, 0, 'white', {
-            color: [ 0xff272c ],
+            color: [ 0x816ad6, 0x2544ff ],
             colorEase: 'quad.out',
-            lifespan: 500,
+            lifespan: 600,
+            angle: { min: -100, max: -80 },
+            scale: { start: 1, end: 0, ease: 'sine.out' },
+            speed: 100,
+            blendMode: 'SCREEN',
+        }).startFollow(this).stop().setDepth(0)
+        this.redFlame = this.scene.add.particles(0, 0, 'white', {
+            color: [ 0xfe5500, 0xfe0f00 ],
+            colorEase: 'quad.out',
+            lifespan: 600,
             angle: { min: -100, max: -80 },
             scale: { start: 1, end: 0, ease: 'sine.out' },
             speed: 100,
@@ -40,17 +50,18 @@ export class Tile extends Phaser.GameObjects.Sprite {
     }
     public setTileNumber(tileNum: number): void {
         this.tileNum = tileNum
-        if (tileNum == 4) {
+        if (this.tileNum == 4) {
             this.stopFlame()
             this.greenFlame.start(20)
         }
-        else if (tileNum >= 5) {
+        else if (this.tileNum == 5) {
             this.stopFlame()
             this.blueFlame.start(20)
         }
-        // else if (tileNum >= 6) {
-
-        // }
+        else if (this.tileNum > 5) {
+            this.stopFlame()
+            this.redFlame.start(20)
+        }
     }
     public addTileNumber(tileNum: number): void {
         this.tileNum += tileNum
@@ -58,9 +69,13 @@ export class Tile extends Phaser.GameObjects.Sprite {
             this.stopFlame()
             this.greenFlame.start(20)
         }
-        else if (this.tileNum >= 5) {
+        else if (this.tileNum == 5) {
             this.stopFlame()
             this.blueFlame.start(20)
+        }
+        else if (this.tileNum > 5) {
+            this.stopFlame()
+            this.redFlame.start(20)
         }
     }
     public getTileNumber(): number {
