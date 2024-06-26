@@ -65,6 +65,11 @@
         "type": "image",
         "key": "white_flare",
         "url": "../assets/images/white-flare.png"
+      },
+      {
+        "type": "image",
+        "key": "white",
+        "url": "../assets/images/white.png"
       }
     ]
   }

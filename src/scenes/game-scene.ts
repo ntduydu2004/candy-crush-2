@@ -14,6 +14,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     public init(): void {
+        this.cameras.main.setBackgroundColor(0x25595e)
         this.playingZone = this.add.zone(0, 0, CONST.gridWidth * CONST.tileWidth, CONST.gridHeight * CONST.tileHeight).setDepth(1).setInteractive()
         this.tileGrid = new TileGrid(this, CONST.gridHeight, CONST.gridWidth)
     }

@@ -34,6 +34,7 @@ export class TileGrid {
                 object.y = -100
                 object.setTexture('')
                 object.setTileNumber(1)
+                object.stopFlame()
             },
             () => {
                 return new Tile({
@@ -52,7 +53,7 @@ export class TileGrid {
                 this.tileGrid[y][x] = this.createTile(x, y)
             }
         }
-
+        
         this.effectManager = new EffectManager(scene, row, column, this.tileGrid)
 
         this.firstSelectedTile = undefined;
@@ -68,18 +69,10 @@ export class TileGrid {
         if (!this.canMove) return
         if (!this.firstSelectedTile) {
             this.firstSelectedTile = this.tileGrid[y][x]
-            this.effectManager.setSelectionTween(this.scene.add.tween({
-                targets: this.firstSelectedTile,
-                scaleX: 0,
-                duration: 300,
-                ease: 'linear',
-                yoyo: true,
-                repeat: -1
-            }))
+            this.effectManager.startSelectionTween(this.firstSelectedTile!)
         }
         else {
-            this.effectManager.removeSelectionTween()
-            this.firstSelectedTile.scaleX = 1
+            this.effectManager.removeSelectionTween(this.firstSelectedTile!)
             if (this.firstSelectedTile === this.tileGrid[y][x]) {
                 this.firstSelectedTile = undefined
                 return
@@ -87,21 +80,17 @@ export class TileGrid {
             this.secondSelectedTile = this.tileGrid[y][x]
             let dx = Math.abs(this.firstSelectedTile.x - this.secondSelectedTile!.x) / CONST.tileWidth
             let dy = Math.abs(this.firstSelectedTile.y - this.secondSelectedTile!.y) / CONST.tileHeight
-            if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
+            if (dx + dy === 1) {
                 this.canMove = false
+                this.scene.time.removeAllEvents()
+                this.effectManager.removeHint()
+                this.effectManager.removeIdleTileTween(this.tileGrid)
                 this.swapTiles()
             }
             else {
                 this.firstSelectedTile = this.tileGrid[y][x]
                 this.secondSelectedTile = undefined
-                this.effectManager.setSelectionTween(this.scene.add.tween({
-                    targets: this.firstSelectedTile,
-                    scaleX: 0,
-                    duration: 300,
-                    ease: 'linear',
-                    yoyo: true,
-                    repeat: -1
-                }))
+                this.effectManager.startSelectionTween(this.firstSelectedTile!)
             }
         }
     }
@@ -128,6 +117,14 @@ export class TileGrid {
         newTile.setTexture(randomTileType)
         // Return the created tile
         return newTile
+    }
+    private renderHint() {
+        const hint = this.getHints()
+        let firstX = this.tileGrid[hint.firstY][hint.firstX]!.x
+        let firstY = this.tileGrid[hint.firstY][hint.firstX]!.y
+        let secondX = this.tileGrid[hint.secondY][hint.secondX]!.x
+        let secondY = this.tileGrid[hint.secondY][hint.secondX]!.y
+        this.effectManager.renderHint(firstX, firstY, secondX, secondY)
     }
     private getHints(): Hint {
         let result: Hint[] = []
@@ -326,6 +323,7 @@ export class TileGrid {
     private tileUp() {
         this.firstSelectedTile = undefined
         this.secondSelectedTile = undefined
+        
     }
     private handleExplosionChain(x: number, y: number) {
         let tileNum = this.tileGrid[y][x]!.getTileNumber()
@@ -498,9 +496,10 @@ export class TileGrid {
                     else break
                 }
                 if (countVertical < 2) continue
-                this.tileGrid[y][x]!.addTileNumber(countHorizontal + countVertical)
+                let tileNum = 0
                 for (let j = 0; j < group.length; j ++) {
                     let tile = group[j]
+                    tileNum += tile.getTileNumber()
                     let tmpX = (tile.x - CONST.tileWidth / 2) / CONST.tileWidth
                     let tmpY = (tile.y - CONST.tileHeight / 2) / CONST.tileHeight
                     this.effectManager.activeTweens++
@@ -521,6 +520,7 @@ export class TileGrid {
                     this.tileGrid[tmpY][tmpX] = undefined
                     this.visited[tmpY][tmpX] = true
                 }
+                this.tileGrid[y][x]!.addTileNumber(tileNum)
             }
         }
         // check if there is a horizontal line match
@@ -567,16 +567,18 @@ export class TileGrid {
                     
                 }
                 else if (count > 3) {
+                    let tileNum = 0
                     // group them together at this point and release the others
-                    this.tileGrid[y][tmpX]!.addTileNumber(count - 1)
+                    
                     for (let i = x; i < x + count; i ++) {
                         if (i == tmpX) continue
                         let tile = this.tileGrid[y][i]!
+                        tileNum += tile.getTileNumber()
                         this.tileGrid[y][i] = undefined
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
-                            ease: 'linear',
+                            ease: 'quad.out',
                             duration: 200,
                             x: tmpX * CONST.tileWidth + CONST.tileWidth / 2,
                             repeat: 0,
@@ -596,6 +598,7 @@ export class TileGrid {
                             }
                         })
                     } 
+                    this.tileGrid[y][tmpX]!.addTileNumber(tileNum)
                 }
             }
         }
@@ -644,16 +647,17 @@ export class TileGrid {
                     }
                 }
                 else if (count > 3) {
-                    this.tileGrid[tmpY][x]!.addTileNumber(count - 1)
+                    let tileNum = 0
                     // group them together at this point and release the others
                     for (let i = y; i < y + count; i ++) {
                         if (i == tmpY) continue
                         let tile = this.tileGrid[i][x]!
+                        tileNum += tile.getTileNumber()
                         this.tileGrid[i][x] = undefined
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
-                            ease: 'linear',
+                            ease: 'quad.out',
                             duration: 200,
                             y: tmpY * CONST.tileHeight + CONST.tileHeight / 2,
                             repeat: 0,
@@ -672,12 +676,22 @@ export class TileGrid {
                             }
                         })
                     } 
+                    this.tileGrid[tmpY][x]!.addTileNumber(tileNum)
                 }
             }
         }
         if (this.effectManager.activeTweens == 0) {
+            if (!this.firstSelectedTile && !this.secondSelectedTile) {
+                this.scene.time.delayedCall(500, () => {
+                    this.renderHint()
+                })
+                this.scene.time.delayedCall(3000, () => {
+                    this.effectManager.startIdleTileTween(this.tileGrid)
+                })
+            }
             this.swapTiles()
             this.tileUp()
+            
             this.canMove = true
         }
     }
