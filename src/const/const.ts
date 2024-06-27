@@ -6,13 +6,11 @@ export let CONST = {
     tileWidth: 64,
     tileHeight: 72,
     candyTypes: [
-        'cookie1',
-        'croissant',
-        'cupcake',
-        'donut',
-        // 'macaroon',
-        // 'poptart1',
-        // 'starcookie1',
+        'blue-candy',
+        'green-candy',
+        'orange-candy',
+        'purple-candy',
+        'red-candy'
     ],
     around: [
         {x: 1, y: 1},
