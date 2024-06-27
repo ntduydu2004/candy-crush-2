@@ -3,63 +3,33 @@
     "files": [
       {
         "type": "image",
-        "key": "cookie1",
-        "url": "../assets/images/cookie1.png"
+        "key": "blue-candy",
+        "url": "../assets/images/blue-candy.png"
       },
       {
         "type": "image",
-        "key": "cookie2",
-        "url": "../assets/images/cookie2.png"
+        "key": "green-candy",
+        "url": "../assets/images/green-candy.png"
       },
       {
         "type": "image",
-        "key": "croissant",
-        "url": "../assets/images/croissant.png"
+        "key": "orange-candy",
+        "url": "../assets/images/orange-candy.png"
       },
       {
         "type": "image",
-        "key": "cupcake",
-        "url": "../assets/images/cupcake.png"
+        "key": "purple-candy",
+        "url": "../assets/images/purple-candy.png"
       },
       {
         "type": "image",
-        "key": "donut",
-        "url": "../assets/images/donut.png"
+        "key": "red-candy",
+        "url": "../assets/images/red-candy.png"
       },
       {
         "type": "image",
-        "key": "eclair",
-        "url": "../assets/images/eclair.png"
-      },
-      {
-        "type": "image",
-        "key": "macaroon",
-        "url": "../assets/images/macaroon.png"
-      },
-      {
-        "type": "image",
-        "key": "pie",
-        "url": "../assets/images/pie.png"
-      },
-      {
-        "type": "image",
-        "key": "poptart1",
-        "url": "../assets/images/poptart1.png"
-      },
-      {
-        "type": "image",
-        "key": "poptart2",
-        "url": "../assets/images/poptart2.png"
-      },
-      {
-        "type": "image",
-        "key": "starcookie1",
-        "url": "../assets/images/starcookie1.png"
-      },
-      {
-        "type": "image",
-        "key": "starcookie2",
-        "url": "../assets/images/starcookie2.png"
+        "key": "white",
+        "url": "../assets/images/white.png"
       },
       {
         "type": "image",
@@ -67,9 +37,10 @@
         "url": "../assets/images/white-flare.png"
       },
       {
-        "type": "image",
-        "key": "white",
-        "url": "../assets/images/white.png"
+        "type": "atlas",
+        "key": "confetti",
+        "textureURL": "../assets/images/confetti.png",
+        "atlasURL": "../assets/images/confetti.json"
       }
     ]
   }

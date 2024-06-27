@@ -11,6 +11,8 @@ export class EffectManager {
     public explosions: Phaser.GameObjects.Particles.ParticleEmitter[][]
     private firstTileHint: Phaser.GameObjects.Rectangle
     private secondTileHint: Phaser.GameObjects.Rectangle
+    private leftConfetti: Phaser.GameObjects.Particles.ParticleEmitter
+    private rightConfetti: Phaser.GameObjects.Particles.ParticleEmitter
     private scene: Scene
     private row: number
     private column: number
@@ -37,18 +39,110 @@ export class EffectManager {
                 })
             }
         }
-        this.firstTileHint = this.scene.add.rectangle(0, 0, CONST.tileWidth, CONST.tileHeight, 0xffffff).setAlpha(0).setOrigin(0.5).setDepth(-1)
-        this.secondTileHint = this.scene.add.rectangle(0, 0, CONST.tileWidth, CONST.tileHeight, 0x000000).setAlpha(0).setOrigin(0.5).setDepth(-1)
+        this.firstTileHint = this.scene.add.rectangle(0, 0, CONST.tileWidth, CONST.tileHeight, 0xf5f52d).setAlpha(0).setOrigin(0.5).setDepth(-1)
+        this.secondTileHint = this.scene.add.rectangle(0, 0, CONST.tileWidth, CONST.tileHeight, 0xf5f52d).setAlpha(0).setOrigin(0.5).setDepth(-1)
         this.tileHintsTween = this.scene.add.tween({
             targets: [this.firstTileHint, this.secondTileHint],
             alpha: 1,
             angle: 360,
-            scale: 1.2,
+            scale: 0.7,
             yoyo: true,
             repeat: -1,
             duration: 1000,
             ease: 'back.out'
         }).pause()
+        this.leftConfetti = this.scene.add.particles(-50, 600, 'confetti', {
+            frame: ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png'],
+            alpha: {min: 75, max: 100},
+            lifespan: 4000,
+            rotate: {
+                onEmit: () => {
+                    return Phaser.Math.RND.between(0, 180)
+                },
+                onUpdate: (particle, key, t, value) => {
+                return value + t*3
+            }},
+            angle: {min: -70, max: -35},
+            speed: {
+                onEmit: (particle) => {
+                    let num = -particle!.angle * 2 - 600
+                    return Phaser.Math.RND.between(num - 500, num + 200)
+                }
+            },
+            scale: {start: 0.2, end: 0},
+            accelerationX: {
+                onEmit: () => {
+                    return -800
+                },
+                onUpdate: (particle, key, t, value) =>{
+                    if (particle.velocityX >= 100) {
+                        return -800
+                    }
+                    return 0
+                }
+            },
+            accelerationY: {
+                onEmit: () => {
+                    return 800
+                },
+                onUpdate: (particle, key, t, value) =>{
+                    if (particle.velocityY <= -100) {
+                        return 800
+                    }
+                    return 0
+                }
+            },
+            quantity: 1,
+            gravityY: 400,
+            emitting: false
+            // duration: 500
+        }).setDepth(5)
+        this.rightConfetti = this.scene.add.particles(570, 600, 'confetti', {
+            frame: ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png'],
+            alpha: {min: 75, max: 100},
+            lifespan: 4000,
+            rotate: {
+                onEmit: () => {
+                    return Phaser.Math.RND.between(0, 180)
+                },
+                onUpdate: (particle, key, t, value) => {
+                return value + t*3
+            }},
+            angle: {min: -145, max: -110},
+            speed: {
+                onEmit: (particle) => {
+                    let num = particle!.angle * 2 + 800
+                    return Phaser.Math.RND.between(num - 200, num + 500)
+                }
+            },
+            scale: {start: 0.2, end: 0},
+            accelerationX: {
+                onEmit: () => {
+                    return 800
+                },
+                onUpdate: (particle, key, t, value) =>{
+                    if (particle.velocityX <= 100) {
+                        return 800
+                    }
+                    return 0
+                }
+            },
+            accelerationY: {
+                onEmit: () => {
+                    return 800
+                },
+                onUpdate: (particle, key, t, value) =>{
+                    if (particle.velocityY <= -100) {
+                        return 800
+                    }
+                    return 0
+                }
+            },
+            quantity: 1,
+            gravityY: 400,
+            emitting: false
+            // duration: 500
+        }).setDepth(5)
     }
     public startSelectionTween(selectedTile: Tile) {
         if (this.selectionTween && !this.selectionTween.isDestroyed()) {
@@ -73,6 +167,10 @@ export class EffectManager {
             yoyo: false,
             angle: 0
         })
+    }
+    public startConfettiEffect() {
+        this.leftConfetti.explode(50)
+        this.rightConfetti.explode(50)
     }
     public explode(x: number, y: number) {
         this.explosions[y][x].start()

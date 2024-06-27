@@ -689,6 +689,7 @@ export class TileGrid {
                     this.effectManager.startIdleTileTween(this.tileGrid)
                 })
             }
+            this.effectManager.startConfettiEffect()
             this.swapTiles()
             this.tileUp()
             
