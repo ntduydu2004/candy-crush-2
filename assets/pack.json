@@ -37,6 +37,11 @@
         "url": "../assets/images/white-flare.png"
       },
       {
+        "type": "image",
+        "key": "background",
+        "url": "../assets/images/background.png"
+      },
+      {
         "type": "atlas",
         "key": "confetti",
         "textureURL": "../assets/images/confetti.png",

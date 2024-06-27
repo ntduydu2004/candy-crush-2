@@ -35,7 +35,6 @@ export class BootScene extends Phaser.Scene {
             () => {
                 this.progressBar.destroy()
                 this.loadingBar.destroy()
-                
             },
             this
         )

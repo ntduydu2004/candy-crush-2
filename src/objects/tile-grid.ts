@@ -1,13 +1,14 @@
-import { Scene } from "phaser";
-import { ObjectManager } from "./object-manager";
-import { Tile } from "./tile";
-import { CONST } from "../const/const";
-import { EffectManager } from "./effect-manager";
+import { Scene } from 'phaser'
+import { ObjectManager } from './object-manager'
+import { Tile } from './tile'
+import { CONST } from '../const/const'
+import { EffectManager } from './effect-manager'
+import { PathType } from './path'
 
 export type Hint = {
-    firstX: number,
-    firstY: number,
-    secondX: number,
+    firstX: number
+    firstY: number
+    secondX: number
     secondY: number
 }
 export class TileGrid {
@@ -22,6 +23,7 @@ export class TileGrid {
     private canMove: boolean
     private visited: boolean[][]
     private isShaking: boolean
+    private tilesArr: Tile[]
     public constructor(scene: Scene, row: number, column: number) {
         this.scene = scene
         this.row = row
@@ -41,10 +43,11 @@ export class TileGrid {
                     scene: this.scene,
                     x: -100,
                     y: -100,
-                    texture: ''
+                    texture: '',
                 })
             }
         )
+        this.tilesArr = []
         this.tileGrid = []
         this.visited = new Array(this.row).fill(null).map(() => new Array(this.column).fill(false))
         for (let y = 0; y < row; y++) {
@@ -53,16 +56,48 @@ export class TileGrid {
                 this.tileGrid[y][x] = this.createTile(x, y)
             }
         }
-        
+
         this.effectManager = new EffectManager(scene, row, column, this.tileGrid)
+        // this.getShuffledTileArray()
+        // this.effectManager.setPath(PathType.OCTAGON)
+        // this.effectManager.setPositionsOnPath(this.tilesArr)
+        this.firstSelectedTile = undefined
+        this.secondSelectedTile = undefined
 
-        this.firstSelectedTile = undefined;
-        this.secondSelectedTile = undefined;
-
-        this.scene.input.on("gameobjectdown", this.tileDown)
+        this.scene.input.on('gameobjectdown', this.tileDown)
         this.checkMatches()
     }
-
+    public update(time: number, delta: number): void {
+        this.effectManager.update(this.tilesArr, time, delta)
+    }
+    private celebrate(): void {
+        this.scene.time.removeAllEvents()
+        this.effectManager.removeHint()
+        this.effectManager.removeIdleTileTween(this.tileGrid)
+        this.getShuffledTileArray()
+        this.effectManager.setPath(Phaser.Math.RND.between(1, 4))
+        this.effectManager.setPositionsOnPath(this.tilesArr)
+        this.effectManager.startConfettiEffect()
+        this.scene.time.delayedCall(5000, () => {
+            this.effectManager.setPath(PathType.NONE)
+            this.returnToInitialPosition()
+        })
+    }
+    private returnToInitialPosition(): void {
+        for (let y = 0; y < this.row; y++) {
+            for (let x = 0; x < this.column; x ++) {
+                this.scene.add.tween({
+                    targets: this.tileGrid[y][x],
+                    x: x * CONST.tileWidth + CONST.tileWidth / 2,
+                    y: y * CONST.tileHeight + CONST.tileHeight / 2,
+                    ease: 'linear',
+                    delay: 5 * (y * this.column + x),
+                    duration: 500
+                })
+            }
+        }
+        // this.checkMatches()
+    } 
     private tileDown = (pointer: Phaser.Input.Pointer) => {
         let y = Math.floor(pointer.y / CONST.tileHeight)
         let x = Math.floor(pointer.x / CONST.tileWidth)
@@ -70,24 +105,24 @@ export class TileGrid {
         if (!this.firstSelectedTile) {
             this.firstSelectedTile = this.tileGrid[y][x]
             this.effectManager.startSelectionTween(this.firstSelectedTile!)
-        }
-        else {
+        } else {
             this.effectManager.removeSelectionTween(this.firstSelectedTile!)
             if (this.firstSelectedTile === this.tileGrid[y][x]) {
                 this.firstSelectedTile = undefined
                 return
             }
             this.secondSelectedTile = this.tileGrid[y][x]
-            let dx = Math.abs(this.firstSelectedTile.x - this.secondSelectedTile!.x) / CONST.tileWidth
-            let dy = Math.abs(this.firstSelectedTile.y - this.secondSelectedTile!.y) / CONST.tileHeight
+            let dx =
+                Math.abs(this.firstSelectedTile.x - this.secondSelectedTile!.x) / CONST.tileWidth
+            let dy =
+                Math.abs(this.firstSelectedTile.y - this.secondSelectedTile!.y) / CONST.tileHeight
             if (dx + dy === 1) {
                 this.canMove = false
                 this.scene.time.removeAllEvents()
                 this.effectManager.removeHint()
                 this.effectManager.removeIdleTileTween(this.tileGrid)
                 this.swapTiles()
-            }
-            else {
+            } else {
                 this.firstSelectedTile = this.tileGrid[y][x]
                 this.secondSelectedTile = undefined
                 this.effectManager.startSelectionTween(this.firstSelectedTile!)
@@ -98,9 +133,11 @@ export class TileGrid {
         this.objectManager.returnObject(tile)
     }
     private checkValid(x: number, y: number): boolean {
-        return(
-            0 <= x && x < this.column &&
-            0 <= y && y < this.row &&
+        return (
+            0 <= x &&
+            x < this.column &&
+            0 <= y &&
+            y < this.row &&
             this.tileGrid[y][x] !== undefined &&
             !this.visited[y][x]
         )
@@ -128,7 +165,7 @@ export class TileGrid {
     }
     private getHints(): Hint {
         let result: Hint[] = []
-        for (let y = 0; y < this.row; y ++) {
+        for (let y = 0; y < this.row; y++) {
             for (let x = 0; x < this.column; x++) {
                 let textureKey = this.tileGrid[y][x]!.texture.key
                 this.visited[y][x] = true
@@ -137,7 +174,7 @@ export class TileGrid {
                         firstX: x,
                         firstY: y,
                         secondX: x + 1,
-                        secondY: y
+                        secondY: y,
                     })
                 }
 
@@ -146,7 +183,7 @@ export class TileGrid {
                         firstX: x,
                         firstY: y,
                         secondX: x - 1,
-                        secondY: y
+                        secondY: y,
                     })
                 }
                 if (this.checkExistMatch(x, y + 1, textureKey)) {
@@ -154,7 +191,7 @@ export class TileGrid {
                         firstX: x,
                         firstY: y,
                         secondX: x,
-                        secondY: y + 1
+                        secondY: y + 1,
                     })
                 }
                 if (this.checkExistMatch(x, y - 1, textureKey)) {
@@ -162,7 +199,7 @@ export class TileGrid {
                         firstX: x,
                         firstY: y,
                         secondX: x,
-                        secondY: y - 1
+                        secondY: y - 1,
                     })
                 }
                 this.visited[y][x] = false
@@ -173,10 +210,20 @@ export class TileGrid {
                 firstX: -1,
                 firstY: -1,
                 secondX: -1,
-                secondY: -1
+                secondY: -1,
             }
         }
         return result[Phaser.Math.RND.between(0, result.length - 1)]
+    }
+
+    private getShuffledTileArray(): void {
+        this.tilesArr = []
+        for (let i = 0; i < this.row; i ++) {
+            for (let j = 0; j < this.column; j ++) {
+                this.tilesArr.push(this.tileGrid[i][j]!)
+            }
+        }
+        this.tilesArr.sort(() => Math.random() - 0.5)
     }
     private checkExistMatch(x: number, y: number, textureKey: string): boolean {
         if (!this.checkValid(x, y)) {
@@ -184,33 +231,29 @@ export class TileGrid {
         }
         // count horizontal
         let count = 1
-        for (let i = x - 1; i >= 0; i --) {
+        for (let i = x - 1; i >= 0; i--) {
             if (this.checkValid(i, y) && this.tileGrid[y][i]!.texture.key === textureKey) {
                 count++
-            }
-            else break
-        } 
-        for (let i = x + 1; i < this.column; i ++) {
+            } else break
+        }
+        for (let i = x + 1; i < this.column; i++) {
             if (this.checkValid(i, y) && this.tileGrid[y][i]!.texture.key === textureKey) {
                 count++
-            }
-            else break
+            } else break
         }
         if (count >= 3) return true
         count = 1
 
         // count vertical
-        for (let i = y - 1; i >= 0; i --) {
+        for (let i = y - 1; i >= 0; i--) {
             if (this.checkValid(x, i) && this.tileGrid[i][x]!.texture.key === textureKey) {
                 count++
-            }
-            else break
+            } else break
         }
-        for (let i = y + 1; i < this.row; i ++) {
+        for (let i = y + 1; i < this.row; i++) {
             if (this.checkValid(x, i) && this.tileGrid[i][x]!.texture.key === textureKey) {
                 count++
-            }
-            else break
+            } else break
         }
         return count >= 3
     }
@@ -240,7 +283,7 @@ export class TileGrid {
                 targets: this.firstSelectedTile,
                 x: this.secondSelectedTile.x,
                 y: this.secondSelectedTile.y,
-                ease: 'Linear',
+                ease: 'expo.inout',
                 duration: 400,
                 repeat: 0,
                 yoyo: false,
@@ -250,7 +293,7 @@ export class TileGrid {
                 targets: this.secondSelectedTile,
                 x: this.firstSelectedTile.x,
                 y: this.firstSelectedTile.y,
-                ease: 'Linear',
+                ease: 'expo.inout',
                 duration: 400,
                 repeat: 0,
                 yoyo: false,
@@ -269,13 +312,13 @@ export class TileGrid {
                 ]
         }
     }
-    private fillTiles(): void{
+    private fillTiles(): void {
         let count = 0
         for (let x = 0; x < this.column; x++) {
             let empty = 0
-            for (let y = this.row - 1; y >= 0 ; y --) {
+            for (let y = this.row - 1; y >= 0; y--) {
                 if (this.tileGrid[y][x] === undefined) {
-                    empty ++
+                    empty++
                     continue
                 }
                 let tempTile = this.tileGrid[y][x]
@@ -285,7 +328,7 @@ export class TileGrid {
                 this.scene.add.tween({
                     targets: tempTile,
                     y: (y + empty) * CONST.tileHeight + CONST.tileHeight / 2,
-                    ease:'bounce',
+                    ease: 'bounce',
                     duration: 400,
                     delay: 100,
                     onComplete: () => {
@@ -293,7 +336,7 @@ export class TileGrid {
                         if (this.effectManager.activeTweens == 0) {
                             this.checkMatches()
                         }
-                    }
+                    },
                 })
             }
             for (let y = -1; y >= -empty; y--) {
@@ -302,18 +345,18 @@ export class TileGrid {
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: newTile,
-                    y: (y + empty) * CONST.tileHeight  + CONST.tileHeight / 2,
+                    y: (y + empty) * CONST.tileHeight + CONST.tileHeight / 2,
                     ease: 'bounce',
                     duration: 400,
                     repeat: 0,
                     delay: 100,
-                    yoyo: false,    
+                    yoyo: false,
                     onComplete: () => {
                         this.effectManager.activeTweens--
                         if (this.effectManager.activeTweens == 0) {
                             this.checkMatches()
                         }
-                    }
+                    },
                 })
             }
             count += empty
@@ -323,7 +366,6 @@ export class TileGrid {
     private tileUp() {
         this.firstSelectedTile = undefined
         this.secondSelectedTile = undefined
-        
     }
     private handleExplosionChain(x: number, y: number) {
         let tileNum = this.tileGrid[y][x]!.getTileNumber()
@@ -332,13 +374,13 @@ export class TileGrid {
         if (tileNum == 1) return
         this.isShaking = true
         if (tileNum == 4) {
-            for (let i = 0; i < 8; i ++){
+            for (let i = 0; i < 8; i++) {
                 let newY = y + CONST.around[i].y
                 let newX = x + CONST.around[i].x
                 if (!this.checkValid(newX, newY)) {
                     continue
                 }
-                
+
                 let tile = this.tileGrid[newY][newX]!
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
@@ -355,14 +397,13 @@ export class TileGrid {
                             }
                             this.fillTiles()
                         }
-                    }
+                    },
                 })
                 this.visited[newY][newX] = true
                 this.handleExplosionChain(newX, newY)
             }
-        }
-        else if (tileNum == 5) {
-            for (let i = 0; i < this.row; i ++) {
+        } else if (tileNum == 5) {
+            for (let i = 0; i < this.row; i++) {
                 if (!this.checkValid(x, i)) continue
                 let tile = this.tileGrid[i][x]!
                 this.effectManager.activeTweens++
@@ -380,13 +421,13 @@ export class TileGrid {
                             }
                             this.fillTiles()
                         }
-                    }
+                    },
                 })
                 this.visited[i][x] = true
                 this.handleExplosionChain(x, i)
             }
 
-            for (let i = 0; i < this.column; i ++) {
+            for (let i = 0; i < this.column; i++) {
                 if (!this.checkValid(i, y)) continue
                 let tile = this.tileGrid[y][i]!
                 this.effectManager.activeTweens++
@@ -404,15 +445,14 @@ export class TileGrid {
                             }
                             this.fillTiles()
                         }
-                    }
+                    },
                 })
                 this.visited[y][i] = true
                 this.handleExplosionChain(i, y)
             }
-        }
-        else if (tileNum >= 6) {
-            for (let i = 0; i < this.row; i ++){
-                for (let j = 0; j < this.column; j ++) {
+        } else if (tileNum >= 6) {
+            for (let i = 0; i < this.row; i++) {
+                for (let j = 0; j < this.column; j++) {
                     if (!this.checkValid(j, i)) continue
                     if (textureKey === this.tileGrid[i][j]!.texture.key) {
                         let tile = this.tileGrid[i][j]!
@@ -432,25 +472,24 @@ export class TileGrid {
                                     }
                                     this.fillTiles()
                                 }
-                            }
+                            },
                         })
                         this.visited[i][j] = true
                     }
                 }
             }
         }
-        
     }
     private checkMatches(): void {
         // reset
-        for (let y = 0; y < this.row; y ++) {
-            for (let x = 0; x < this.column; x ++){
+        for (let y = 0; y < this.row; y++) {
+            for (let x = 0; x < this.column; x++) {
                 this.visited[y][x] = false
             }
         }
-        // check if there is a crossline match 
-        for (let y = 0; y < this.row; y ++) {
-            for (let x = 0; x < this.column; x ++) {
+        // check if there is a crossline match
+        for (let y = 0; y < this.row; y++) {
+            for (let x = 0; x < this.column; x++) {
                 if (!this.checkValid(x, y)) continue
                 let countHorizontal = 0
                 let countVertical = 0
@@ -458,46 +497,54 @@ export class TileGrid {
                 // horizontal
                 let i = x - 1
                 while (true) {
-                    if (this.checkValid(i, y) && this.tileGrid[y][i]!.texture.key === this.tileGrid[y][x]!.texture.key) {
-                        countHorizontal ++
+                    if (
+                        this.checkValid(i, y) &&
+                        this.tileGrid[y][i]!.texture.key === this.tileGrid[y][x]!.texture.key
+                    ) {
+                        countHorizontal++
                         group.push(this.tileGrid[y][i]!)
                         i--
-                    }
-                    else break
+                    } else break
                 }
                 i = x + 1
                 while (true) {
-                    if (this.checkValid(i, y) && this.tileGrid[y][i]!.texture.key === this.tileGrid[y][x]!.texture.key) {
-                        countHorizontal ++
+                    if (
+                        this.checkValid(i, y) &&
+                        this.tileGrid[y][i]!.texture.key === this.tileGrid[y][x]!.texture.key
+                    ) {
+                        countHorizontal++
                         group.push(this.tileGrid[y][i]!)
                         i++
-                    }
-                    else break
+                    } else break
                 }
                 if (countHorizontal < 2) continue
 
                 // vertical
                 i = y - 1
                 while (true) {
-                    if (this.checkValid(x, i) && this.tileGrid[i][x]!.texture.key === this.tileGrid[y][x]!.texture.key) {
-                        countVertical ++
+                    if (
+                        this.checkValid(x, i) &&
+                        this.tileGrid[i][x]!.texture.key === this.tileGrid[y][x]!.texture.key
+                    ) {
+                        countVertical++
                         group.push(this.tileGrid[i][x]!)
                         i--
-                    }
-                    else break
+                    } else break
                 }
                 i = y + 1
                 while (true) {
-                    if (this.checkValid(x, i) && this.tileGrid[i][x]!.texture.key === this.tileGrid[y][x]!.texture.key) {
-                        countVertical ++
+                    if (
+                        this.checkValid(x, i) &&
+                        this.tileGrid[i][x]!.texture.key === this.tileGrid[y][x]!.texture.key
+                    ) {
+                        countVertical++
                         group.push(this.tileGrid[i][x]!)
                         i++
-                    }
-                    else break
+                    } else break
                 }
                 if (countVertical < 2) continue
                 let tileNum = 0
-                for (let j = 0; j < group.length; j ++) {
+                for (let j = 0; j < group.length; j++) {
                     let tile = group[j]
                     tileNum += tile.getTileNumber()
                     let tmpX = (tile.x - CONST.tileWidth / 2) / CONST.tileWidth
@@ -515,7 +562,7 @@ export class TileGrid {
                             if (this.effectManager.activeTweens == 0) {
                                 this.fillTiles()
                             }
-                        }
+                        },
                     })
                     this.tileGrid[tmpY][tmpX] = undefined
                     this.visited[tmpY][tmpX] = true
@@ -524,24 +571,26 @@ export class TileGrid {
             }
         }
         // check if there is a horizontal line match
-        for (let y = 0; y < this.row; y ++) {
-            for (let x = 0; x < this.column; x ++) {
+        for (let y = 0; y < this.row; y++) {
+            for (let x = 0; x < this.column; x++) {
                 if (!this.checkValid(x, y)) continue
                 let count = 0
                 let tmpX = x
-                for (let i = x; i < this.column; i ++) {
+                for (let i = x; i < this.column; i++) {
                     if (!this.checkValid(i, y)) break
                     if (this.tileGrid[y][x]!.texture.key === this.tileGrid[y][i]!.texture.key) {
-                        count ++
-                        if (this.tileGrid[y][i] === this.firstSelectedTile || this.tileGrid[y][i] === this.secondSelectedTile){
+                        count++
+                        if (
+                            this.tileGrid[y][i] === this.firstSelectedTile ||
+                            this.tileGrid[y][i] === this.secondSelectedTile
+                        ) {
                             tmpX = i
                         }
-                    }
-                    else break
+                    } else break
                 }
                 if (count == 3) {
                     // release the whole group
-                    for (let i = x; i < x + 3; i ++){
+                    for (let i = x; i < x + 3; i++) {
                         if (!this.checkValid(i, y)) continue
                         let tile = this.tileGrid[y][i]!
                         this.effectManager.activeTweens++
@@ -559,18 +608,16 @@ export class TileGrid {
                                     }
                                     this.fillTiles()
                                 }
-                            }
+                            },
                         })
                         this.visited[y][i] = true
                         this.handleExplosionChain(i, y)
                     }
-                    
-                }
-                else if (count > 3) {
+                } else if (count > 3) {
                     let tileNum = 0
                     // group them together at this point and release the others
-                    
-                    for (let i = x; i < x + count; i ++) {
+
+                    for (let i = x; i < x + count; i++) {
                         if (i == tmpX) continue
                         let tile = this.tileGrid[y][i]!
                         tileNum += tile.getTileNumber()
@@ -594,35 +641,36 @@ export class TileGrid {
                                     }
                                     this.fillTiles()
                                 }
-                                
-                            }
+                            },
                         })
-                    } 
+                    }
                     this.tileGrid[y][tmpX]!.addTileNumber(tileNum)
                 }
             }
         }
-        
+
         // check if there is a vertical line match
-        for (let x = 0; x < this.column; x ++) {
-            for (let y = 0; y < this.row; y ++) {
+        for (let x = 0; x < this.column; x++) {
+            for (let y = 0; y < this.row; y++) {
                 if (!this.checkValid(x, y)) continue
                 let count = 0
                 let tmpY = y
-                for (let i = y; i < this.row; i ++) {
+                for (let i = y; i < this.row; i++) {
                     if (!this.checkValid(x, i)) break
                     if (this.tileGrid[y][x]!.texture.key === this.tileGrid[i][x]!.texture.key) {
-                        count ++
-                        if (this.tileGrid[i][x] === this.firstSelectedTile || this.tileGrid[i][x] === this.secondSelectedTile) {
+                        count++
+                        if (
+                            this.tileGrid[i][x] === this.firstSelectedTile ||
+                            this.tileGrid[i][x] === this.secondSelectedTile
+                        ) {
                             tmpY = i
                         }
-                    }
-                    else break
+                    } else break
                 }
 
                 if (count == 3) {
                     // release the whole group
-                    for (let i = y; i < y + 3; i ++){
+                    for (let i = y; i < y + 3; i++) {
                         if (!this.checkValid(x, i)) continue
                         let tile = this.tileGrid[i][x]!
                         this.effectManager.activeTweens++
@@ -640,16 +688,15 @@ export class TileGrid {
                                     }
                                     this.fillTiles()
                                 }
-                            }
+                            },
                         })
                         this.visited[i][x] = true
                         this.handleExplosionChain(x, i)
                     }
-                }
-                else if (count > 3) {
+                } else if (count > 3) {
                     let tileNum = 0
                     // group them together at this point and release the others
-                    for (let i = y; i < y + count; i ++) {
+                    for (let i = y; i < y + count; i++) {
                         if (i == tmpY) continue
                         let tile = this.tileGrid[i][x]!
                         tileNum += tile.getTileNumber()
@@ -673,26 +720,27 @@ export class TileGrid {
                                     }
                                     this.fillTiles()
                                 }
-                            }
+                            },
                         })
-                    } 
+                    }
                     this.tileGrid[tmpY][x]!.addTileNumber(tileNum)
                 }
             }
         }
         if (this.effectManager.activeTweens == 0) {
-            if (!this.firstSelectedTile && !this.secondSelectedTile) {
-                this.scene.time.delayedCall(500, () => {
-                    this.renderHint()
-                })
-                this.scene.time.delayedCall(3000, () => {
-                    this.effectManager.startIdleTileTween(this.tileGrid)
-                })
-            }
-            this.effectManager.startConfettiEffect()
+            // if (!this.firstSelectedTile && !this.secondSelectedTile) {
+            //     this.scene.time.delayedCall(500, () => {
+            //         this.renderHint()
+            //     })
+            //     this.scene.time.delayedCall(3000, () => {
+            //         this.effectManager.startIdleTileTween(this.tileGrid)
+            //     })
+            // }
+            // this.effectManager.startConfettiEffect()
+            this.celebrate()
             this.swapTiles()
             this.tileUp()
-            
+
             this.canMove = true
         }
     }
