@@ -1,3 +1,1 @@
-export class ProgressBar extends Phaser.GameObjects.Container {
-    
-}
+export class ProgressBar extends Phaser.GameObjects.Container {}

@@ -7,20 +7,19 @@ export let CONST = {
     tileHeight: 72,
     candyTypes: [
         'blue-candy',
-        'green-candy',
-        'orange-candy',
-        'purple-candy',
+        'green-candy', 
+        'orange-candy', 
+        'purple-candy', 
         'red-candy'
     ],
     around: [
-        {x: 1, y: 1},
-        {x: 0, y: 1},
-        {x: 1, y: 0},
-        {x: -1, y: -1},
-        {x: -1, y: 0},
-        {x: -1, y: 1},
-        {x: 0, y: -1},
-        {x: 1, y: -1}
-    ]
+        { x: 1, y: 1 },
+        { x: 0, y: 1 },
+        { x: 1, y: 0 },
+        { x: -1, y: -1 },
+        { x: -1, y: 0 },
+        { x: -1, y: 1 },
+        { x: 0, y: -1 },
+        { x: 1, y: -1 },
+    ],
 }
-
