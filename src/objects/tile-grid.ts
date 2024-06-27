@@ -4,6 +4,7 @@ import { Tile } from './tile'
 import { CONST } from '../const/const'
 import { EffectManager } from './effect-manager'
 import { PathType } from './path'
+import { ScoreManager } from './score-manager'
 
 export type Hint = {
     firstX: number
@@ -14,6 +15,7 @@ export type Hint = {
 export class TileGrid {
     private objectManager: ObjectManager<Tile>
     private effectManager: EffectManager
+    private scoreManager: ScoreManager
     private scene: Scene
     private row: number
     private column: number
@@ -30,6 +32,7 @@ export class TileGrid {
         this.column = column
         this.canMove = true
         this.isShaking = false
+        this.scoreManager = new ScoreManager(scene)
         this.objectManager = new ObjectManager(
             (object: Tile) => {
                 object.x = -100
@@ -84,6 +87,7 @@ export class TileGrid {
         })
     }
     private returnToInitialPosition(): void {
+        this.scoreManager.reset()
         for (let y = 0; y < this.row; y++) {
             for (let x = 0; x < this.column; x ++) {
                 this.scene.add.tween({
@@ -96,7 +100,7 @@ export class TileGrid {
                 })
             }
         }
-        // this.checkMatches()
+        this.checkMatches()
     } 
     private tileDown = (pointer: Phaser.Input.Pointer) => {
         let y = Math.floor(pointer.y / CONST.tileHeight)
@@ -370,6 +374,7 @@ export class TileGrid {
     private handleExplosionChain(x: number, y: number) {
         let tileNum = this.tileGrid[y][x]!.getTileNumber()
         let textureKey = this.tileGrid[y][x]!.texture.key
+        this.scoreManager.addScore(tileNum)
         this.tileGrid[y][x] = undefined
         if (tileNum == 1) return
         this.isShaking = true
@@ -728,16 +733,18 @@ export class TileGrid {
             }
         }
         if (this.effectManager.activeTweens == 0) {
-            // if (!this.firstSelectedTile && !this.secondSelectedTile) {
-            //     this.scene.time.delayedCall(500, () => {
-            //         this.renderHint()
-            //     })
-            //     this.scene.time.delayedCall(3000, () => {
-            //         this.effectManager.startIdleTileTween(this.tileGrid)
-            //     })
-            // }
-            // this.effectManager.startConfettiEffect()
-            this.celebrate()
+            if (!this.firstSelectedTile && !this.secondSelectedTile) {
+                if (this.scoreManager.reachedMaxScore()) {
+                    this.celebrate()
+                    return
+                }
+                this.scene.time.delayedCall(3000, () => {
+                    this.renderHint()
+                })
+                this.scene.time.delayedCall(3000, () => {
+                    this.effectManager.startIdleTileTween(this.tileGrid)
+                })
+            }
             this.swapTiles()
             this.tileUp()
 
