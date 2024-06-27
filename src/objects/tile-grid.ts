@@ -78,7 +78,7 @@ export class TileGrid {
         this.effectManager.removeHint()
         this.effectManager.removeIdleTileTween(this.tileGrid)
         this.getShuffledTileArray()
-        this.effectManager.setPath(Phaser.Math.RND.between(1, 4))
+        this.effectManager.setPath(Phaser.Math.RND.between(1, 5))
         this.effectManager.setPositionsOnPath(this.tilesArr)
         this.effectManager.startConfettiEffect()
         this.scene.time.delayedCall(5000, () => {
@@ -94,7 +94,7 @@ export class TileGrid {
                     targets: this.tileGrid[y][x],
                     x: x * CONST.tileWidth + CONST.tileWidth / 2,
                     y: y * CONST.tileHeight + CONST.tileHeight / 2,
-                    ease: 'linear',
+                    ease: 'expo.inout',
                     delay: 5 * (y * this.column + x),
                     duration: 500
                 })

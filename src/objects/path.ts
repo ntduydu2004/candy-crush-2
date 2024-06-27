@@ -33,6 +33,27 @@ export class Path {
         this.octagon.lineTo(50, 200)
         this.octagon.lineTo(150, 100)
         
+        const cx = 250; // Center x
+        const cy = 250; // Center y
+        const R = 200; // Outer radius
+        const r = 95;  // Inner radius
+        this.star = new Phaser.Curves.Path(cx, cy - R); // Start at the top
+
+        for (let i = 0; i < 5; i++) {
+            // Outer point
+            let angle = Math.PI / 2 + 2 * Math.PI * i / 5;
+            let x = cx + Math.cos(angle) * R;
+            let y = cy - Math.sin(angle) * R;
+            this.star.lineTo(x, y);
+
+            // Inner point
+            angle += Math.PI / 5;
+            x = cx + Math.cos(angle) * r;
+            y = cy - Math.sin(angle) * r;
+            this.star.lineTo(x, y);
+        }
+        // this.Spath.lineTo(150, 200)
+        this.star.closePath()
         this.pathType = PathType.NONE
         this.currentProgress = 0
     }
@@ -47,6 +68,9 @@ export class Path {
             case PathType.SQUARE: {
                 return this.square.getPoints(tiles.length)
             }
+            case PathType.TRIANGLE: {
+                return this.triangle.getPoints(tiles.length)
+            }
             case PathType.OCTAGON: {
                 let dt = 1 / tiles.length
                 let points: Phaser.Geom.Point[] = []
@@ -56,8 +80,14 @@ export class Path {
                 }
                 return points
             }
-            case PathType.TRIANGLE: {
-                return this.triangle.getPoints(tiles.length)
+            case PathType.STAR: {
+                let dt = 1 / tiles.length
+                let points: Phaser.Geom.Point[] = []
+                for (let i = 0; i < tiles.length; i ++) {
+                    let position = this.star.getPoint(dt * i)
+                    points.push(new Phaser.Geom.Point(position.x, position.y))
+                }
+                return points
             }
         }
         return []
@@ -89,6 +119,11 @@ export class Path {
                 }
                 case PathType.TRIANGLE: {
                     const point = this.triangle.getPoint(progress)
+                    tiles[i].setPosition(point.x, point.y)
+                    break
+                }
+                case PathType.STAR: {
+                    const point = this.star.getPoint(progress)
                     tiles[i].setPosition(point.x, point.y)
                     break
                 }

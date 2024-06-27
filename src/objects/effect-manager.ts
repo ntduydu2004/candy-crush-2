@@ -128,10 +128,10 @@ export class EffectManager {
                 },
                 quantity: 1,
                 gravityY: 400,
-                emitting: false,
-                // duration: 500
+                // emitting: false,
+                duration: 2000
             })
-            .setDepth(5)
+            .setDepth(5).stop()
         this.rightConfetti = this.scene.add
             .particles(570, 600, 'confetti', {
                 frame: [
@@ -187,9 +187,9 @@ export class EffectManager {
                 },
                 quantity: 1,
                 gravityY: 400,
-                emitting: false,
-                // duration: 500
-            })
+                // emitting: false,
+                duration: 2000
+            }).stop()
             .setDepth(5)
             this.path = new Path()
     }
@@ -245,8 +245,8 @@ export class EffectManager {
         })
     }
     public startConfettiEffect() {
-        this.leftConfetti.explode(50)
-        this.rightConfetti.explode(50)
+        this.leftConfetti.start()
+        this.rightConfetti.start()
     }
     public explode(x: number, y: number) {
         this.explosions[y][x].start()
