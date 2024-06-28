@@ -52,6 +52,41 @@
         "url": "./assets/images/cross_vertical.png"
       },
       {
+        "type": "image",
+        "key": "purple",
+        "url": "./assets/images/purple.png"
+      },
+      {
+        "type": "image",
+        "key": "red",
+        "url": "./assets/images/red.png"
+      },
+      {
+        "type": "image",
+        "key": "yellow",
+        "url": "./assets/images/yellow.png"
+      },
+      {
+        "type": "image",
+        "key": "cream",
+        "url": "./assets/images/cream.png"
+      },
+      {
+        "type": "image",
+        "key": "cake",
+        "url": "./assets/images/cake.png"
+      },
+      {
+        "type": "image",
+        "key": "gato",
+        "url": "./assets/images/gato.png"
+      },
+      {
+        "type": "image",
+        "key": "bg",
+        "url": "./assets/images/bg.png"
+      },
+      {
         "type": "atlas",
         "key": "confetti",
         "textureURL": "./assets/images/confetti.png",

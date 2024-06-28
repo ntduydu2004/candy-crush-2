@@ -14,7 +14,7 @@ export class Tile extends Phaser.GameObjects.Sprite {
         this.setOrigin(0.5, 0.5)
         this.setInteractive()
         this.setDepth(1)
-        this.setScale(0.8)
+        this.setScale(0.4)
         this.scene.add.existing(this)
         this.greenFlame = this.scene.add
             .particles(0, 0, 'white', {

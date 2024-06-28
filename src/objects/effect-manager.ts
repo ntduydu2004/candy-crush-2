@@ -307,7 +307,7 @@ export class EffectManager {
                         targets: tileGrid[y][x],
                         delay: (x + y) * 50,
                         duration: 300,
-                        scale: 0.4,
+                        scale: 0.2,
                         repeat: -1,
                         repeatDelay: 5000,
                         yoyo: true,
@@ -324,7 +324,7 @@ export class EffectManager {
                     this.idleTileTween[y][x].destroy()
                     this.scene.add.tween({
                         targets: tileGrid[y][x],
-                        scale: 0.8,
+                        scale: 0.4,
                         duration: 100,
                         yoyo: false,
                         ease: 'linear',
