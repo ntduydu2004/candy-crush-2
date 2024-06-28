@@ -757,10 +757,10 @@ export class TileGrid {
                     this.celebrate()
                     return
                 }
-                this.scene.time.delayedCall(3000, () => {
+                this.scene.time.delayedCall(5000, () => {
                     this.renderHint()
                 })
-                this.scene.time.delayedCall(3000, () => {
+                this.scene.time.delayedCall(5000, () => {
                     this.effectManager.startIdleTileTween(this.tileGrid)
                 })
             }
