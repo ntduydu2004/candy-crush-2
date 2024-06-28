@@ -9,7 +9,7 @@ export let CONST = {
         'blue-candy',
         'green-candy', 
         'orange-candy', 
-        'purple-candy', 
+        // 'purple-candy', 
         'red-candy'
     ],
     around: [

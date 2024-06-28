@@ -374,7 +374,8 @@ export class TileGrid {
         this.firstSelectedTile = undefined
         this.secondSelectedTile = undefined
     }
-    private handleExplosionChain(x: number, y: number) {
+    private handleExplosionChain(x: number, y: number, currentDelay: number) {
+        const dt = 50
         let tileNum = this.tileGrid[y][x]!.getTileNumber()
         let textureKey = this.tileGrid[y][x]!.texture.key
         this.scoreManager.addScore(tileNum)
@@ -393,7 +394,8 @@ export class TileGrid {
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: tile,
-                    duration: 200,
+                    duration: currentDelay + dt,
+                    x: tile.x,
                     onComplete: () => {
                         this.effectManager.explode(newX, newY)
                         if (tile.getTileNumber() == 5) {
@@ -411,7 +413,7 @@ export class TileGrid {
                     },
                 })
                 this.visited[newY][newX] = true
-                this.handleExplosionChain(newX, newY)
+                this.handleExplosionChain(newX, newY, currentDelay + dt)
             }
         } else if (tileNum == 5) {
             for (let i = 0; i < this.row; i++) {
@@ -420,7 +422,8 @@ export class TileGrid {
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: tile,
-                    duration: 200,
+                    duration: currentDelay + Math.abs(y - i) * dt,
+                    x: tile.x,
                     onComplete: () => {
                         this.effectManager.explode(x, i)
                         if (tile.getTileNumber() == 5) {
@@ -438,7 +441,7 @@ export class TileGrid {
                     },
                 })
                 this.visited[i][x] = true
-                this.handleExplosionChain(x, i)
+                this.handleExplosionChain(x, i, currentDelay + Math.abs(y - i) * dt)
             }
 
             for (let i = 0; i < this.column; i++) {
@@ -447,7 +450,8 @@ export class TileGrid {
                 this.effectManager.activeTweens++
                 this.scene.add.tween({
                     targets: tileNum,
-                    duration: 200,
+                    duration: currentDelay + Math.abs(x - i) * dt,
+                    x: tile.x,
                     onComplete: () => {
                         this.effectManager.explode(i, y)
                         this.effectManager.activeTweens--
@@ -462,7 +466,7 @@ export class TileGrid {
                     },
                 })
                 this.visited[y][i] = true
-                this.handleExplosionChain(i, y)
+                this.handleExplosionChain(i, y, currentDelay + Math.abs(x - i) * dt)
             }
         } else if (tileNum >= 6) {
             for (let i = 0; i < this.row; i++) {
@@ -474,7 +478,8 @@ export class TileGrid {
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
-                            duration: 200,
+                            x: tile.x,
+                            duration: currentDelay + (Math.abs(y - i) + Math.abs(x - j)) * dt,
                             onComplete: () => {
                                 this.effectManager.explode(j, i)
                                 this.effectManager.activeTweens--
@@ -611,7 +616,6 @@ export class TileGrid {
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
-                            duration: 200,
                             onComplete: () => {
                                 this.effectManager.explode(i, y)
                                 if (tile.getTileNumber() == 5) {
@@ -629,7 +633,7 @@ export class TileGrid {
                             },
                         })
                         this.visited[y][i] = true
-                        this.handleExplosionChain(i, y)
+                        this.handleExplosionChain(i, y, 0)
                     }
                 } else if (count > 3) {
                     let tileNum = 0
@@ -694,7 +698,6 @@ export class TileGrid {
                         this.effectManager.activeTweens++
                         this.scene.add.tween({
                             targets: tile,
-                            duration: 200,
                             onComplete: () => {
                                 this.effectManager.explode(x, i)
                                 if (tile.getTileNumber() == 5) {
@@ -712,7 +715,7 @@ export class TileGrid {
                             },
                         })
                         this.visited[i][x] = true
-                        this.handleExplosionChain(x, i)
+                        this.handleExplosionChain(x, i, 0)
                     }
                 } else if (count > 3) {
                     let tileNum = 0
