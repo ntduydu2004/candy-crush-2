@@ -15,6 +15,8 @@ export class EffectManager {
     private secondTileHint: Phaser.GameObjects.Rectangle
     private leftConfetti: Phaser.GameObjects.Particles.ParticleEmitter
     private rightConfetti: Phaser.GameObjects.Particles.ParticleEmitter
+    private cross: Phaser.GameObjects.Sprite[][]
+    private verticalCross: Phaser.GameObjects.Sprite[][]
     private path: Path
     private scene: Scene
     private row: number
@@ -49,6 +51,18 @@ export class EffectManager {
                     },
                     duration: 200,
                 })
+            }
+        }
+        this.cross = []
+        this.verticalCross = []
+        for (let y = 0; y < row; y ++) {
+            this.cross[y] = []
+            this.verticalCross[y] = []
+            for (let x = 0; x < column; x ++) {
+                this.cross[y][x] = this.scene.add.sprite(x * CONST.tileWidth + CONST.tileWidth / 2, y * CONST.tileHeight + CONST.tileHeight / 2, 'cross').setAlpha(0).setDepth(3)
+                this.cross[y][x].displayHeight = CONST.tileHeight
+                this.verticalCross[y][x] = this.scene.add.sprite(x * CONST.tileWidth + CONST.tileWidth / 2, y * CONST.tileHeight + CONST.tileHeight / 2, 'cross_vertical').setAlpha(0).setDepth(3)
+                this.verticalCross[y][x].displayWidth = CONST.tileWidth
             }
         }
         this.firstTileHint = this.scene.add
@@ -247,6 +261,22 @@ export class EffectManager {
     public startConfettiEffect() {
         this.leftConfetti.start()
         this.rightConfetti.start()
+    }
+    public startCrossLineEffect(x: number, y: number) {
+        this.cross[y][x].setAlpha(1).scaleX = 1
+        this.verticalCross[y][x].setAlpha(1).scaleY = 1
+        this.scene.add.tween({
+            targets: this.cross[y][x], 
+            scaleX: 2.5,
+            alpha: 0,
+            duration: 500
+        })
+        this.scene.add.tween({
+            targets: this.verticalCross[y][x],
+            scaleY: 2.5,
+            alpha: 0,
+            duration: 500
+        })
     }
     public explode(x: number, y: number) {
         this.explosions[y][x].start()

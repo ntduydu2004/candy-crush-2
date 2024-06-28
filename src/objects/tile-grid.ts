@@ -26,7 +26,9 @@ export class TileGrid {
     private visited: boolean[][]
     private isShaking: boolean
     private tilesArr: Tile[]
+    private checkNum: number
     public constructor(scene: Scene, row: number, column: number) {
+        this.checkNum = 0
         this.scene = scene
         this.row = row
         this.column = column
@@ -121,6 +123,7 @@ export class TileGrid {
             let dy =
                 Math.abs(this.firstSelectedTile.y - this.secondSelectedTile!.y) / CONST.tileHeight
             if (dx + dy === 1) {
+                this.checkNum = 0
                 this.canMove = false
                 this.scene.time.removeAllEvents()
                 this.effectManager.removeHint()
@@ -393,6 +396,9 @@ export class TileGrid {
                     duration: 200,
                     onComplete: () => {
                         this.effectManager.explode(newX, newY)
+                        if (tile.getTileNumber() == 5) {
+                            this.effectManager.startCrossLineEffect(newX, newY)
+                        }
                         this.effectManager.activeTweens--
                         this.releaseTile(tile)
                         if (this.effectManager.activeTweens == 0) {
@@ -417,6 +423,9 @@ export class TileGrid {
                     duration: 200,
                     onComplete: () => {
                         this.effectManager.explode(x, i)
+                        if (tile.getTileNumber() == 5) {
+                            this.effectManager.startCrossLineEffect(x, i)
+                        }
                         this.effectManager.activeTweens--
                         this.releaseTile(tile)
                         if (this.effectManager.activeTweens == 0) {
@@ -487,6 +496,7 @@ export class TileGrid {
     }
     private checkMatches(): void {
         // reset
+        this.checkNum++
         for (let y = 0; y < this.row; y++) {
             for (let x = 0; x < this.column; x++) {
                 this.visited[y][x] = false
@@ -604,6 +614,9 @@ export class TileGrid {
                             duration: 200,
                             onComplete: () => {
                                 this.effectManager.explode(i, y)
+                                if (tile.getTileNumber() == 5) {
+                                    this.effectManager.startCrossLineEffect(i, y)
+                                }
                                 this.effectManager.activeTweens--
                                 this.releaseTile(tile)
                                 if (this.effectManager.activeTweens == 0) {
@@ -684,6 +697,9 @@ export class TileGrid {
                             duration: 200,
                             onComplete: () => {
                                 this.effectManager.explode(x, i)
+                                if (tile.getTileNumber() == 5) {
+                                    this.effectManager.startCrossLineEffect(x, i)
+                                }
                                 this.releaseTile(tile)
                                 this.effectManager.activeTweens--
                                 if (this.effectManager.activeTweens == 0) {
@@ -747,8 +763,10 @@ export class TileGrid {
             }
             this.swapTiles()
             this.tileUp()
-
-            this.canMove = true
+            if (this.checkNum >= 2) {
+                this.canMove = true
+            }
+            
         }
     }
 }

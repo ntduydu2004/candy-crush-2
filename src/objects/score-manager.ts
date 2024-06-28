@@ -11,12 +11,13 @@ export class ScoreManager {
     public constructor(scene: Scene) {
         this.scene = scene
         this.progressBar = new ProgressBar(this.scene)
+        this.scoreMax = 5000
         this.reset()
     }
 
     public reset() {
         this.score = 0
-        this.scoreMax = Phaser.Math.RND.between(1000, 1000)
+        this.scoreMax += 100
         this.progressBar.setProgress(0)
     }
 
