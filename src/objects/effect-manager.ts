@@ -3,6 +3,7 @@ import { TileGrid } from './tile-grid'
 import { Tile } from './tile'
 import { CONST } from '../const/const'
 import { Path, PathType } from './path'
+import { SoundManager } from '../helper/sound-manager'
 
 export class EffectManager {
     public activeTweens: number
@@ -18,6 +19,7 @@ export class EffectManager {
     private verticalCross: Phaser.GameObjects.Sprite[][]
     private path: Path
     private scene: Scene
+    private soundManager: SoundManager
     private row: number
     private column: number
     public constructor(
@@ -26,6 +28,7 @@ export class EffectManager {
         column: number,
         tileGrid: (Tile | undefined)[][]
     ) {
+        this.soundManager = SoundManager.getInstance()
         this.activeTweens = 0
         this.scene = scene
         this.row = row
@@ -275,6 +278,8 @@ export class EffectManager {
     public startConfettiEffect() {
         this.leftConfetti.start()
         this.rightConfetti.start()
+        this.soundManager.playConfettiSound()
+        this.soundManager.playYaySound()
     }
     public startCrossLineEffect(x: number, y: number) {
         this.cross[y][x].setAlpha(1).scaleX = 1
@@ -294,6 +299,7 @@ export class EffectManager {
     }
     public explode(x: number, y: number) {
         this.explosions[y][x].start()
+        this.soundManager.playExplosionSound()
     }
     public shake() {
         this.scene.cameras.main.shake(200, 0.03)

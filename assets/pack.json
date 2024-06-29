@@ -72,6 +72,41 @@
         "url": "./assets/images/cake.png"
       },
       {
+        "type": "audio",
+        "key": "background_music",
+        "url": "./assets/sounds/background_music.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "explosion_sound",
+        "url": "./assets/sounds/explosion_sound.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "yay_sound",
+        "url": "./assets/sounds/yay_sound.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "confetti_sound",
+        "url": "./assets/sounds/confetti_sound.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "swoosh_sound",
+        "url": "./assets/sounds/swoosh_sound.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "discovery_sound",
+        "url": "./assets/sounds/discovery_sound.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "landing_sound",
+        "url": "./assets/sounds/landing_sound.mp3"
+      },
+      {
         "type": "image",
         "key": "gato",
         "url": "./assets/images/gato.png"

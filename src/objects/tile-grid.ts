@@ -1,10 +1,11 @@
-import { Scene } from 'phaser'
+import { Scene, Sound } from 'phaser'
 import { ObjectManager } from './object-manager'
 import { Tile } from './tile'
 import { CONST } from '../const/const'
 import { EffectManager } from './effect-manager'
 import { PathType } from './path'
 import { ScoreManager } from './score-manager'
+import { SoundManager } from '../helper/sound-manager'
 
 export type Hint = {
     firstX: number
@@ -290,7 +291,6 @@ export class TileGrid {
             this.tileGrid[(secondTilePosition.y - CONST.tileHeight / 2) / CONST.tileHeight][
                 (secondTilePosition.x - CONST.tileWidth / 2) / CONST.tileWidth
             ] = this.firstSelectedTile
-
             // Move them on the screen with tweens
             this.scene.add.tween({
                 targets: this.firstSelectedTile,
@@ -300,6 +300,9 @@ export class TileGrid {
                 duration: 400,
                 repeat: 0,
                 yoyo: false,
+                onStart: () => {
+                    SoundManager.getInstance().playSwooshSound()
+                }
             })
 
             this.scene.add.tween({
@@ -344,6 +347,9 @@ export class TileGrid {
                     ease: 'bounce',
                     duration: 400,
                     delay: 100,
+                    onStart: () => {
+                        SoundManager.getInstance().playLandingSound()
+                    },
                     onComplete: () => {
                         this.effectManager.activeTweens--
                         if (this.effectManager.activeTweens == 0) {
@@ -364,6 +370,9 @@ export class TileGrid {
                     repeat: 0,
                     delay: 100,
                     yoyo: false,
+                    onStart: () => {
+                        SoundManager.getInstance().playLandingSound()
+                    },
                     onComplete: () => {
                         this.effectManager.activeTweens--
                         if (this.effectManager.activeTweens == 0) {
@@ -687,6 +696,9 @@ export class TileGrid {
                         x: x * CONST.tileWidth + CONST.tileWidth / 2,
                         y: y * CONST.tileHeight + CONST.tileHeight / 2,
                         ease: 'linear',
+                        onStart: () => {
+                            SoundManager.getInstance().playSwooshSound()
+                        },
                         onComplete: () => {
                             this.effectManager.activeTweens--
                             groupTween--
@@ -777,6 +789,9 @@ export class TileGrid {
                             repeat: 0,
                             yoyo: false,
                             delay: 100,
+                            onStart: () => {
+                                SoundManager.getInstance().playSwooshSound()
+                            },
                             onComplete: () => {
                                 this.effectManager.activeTweens--
                                 groupTween--
@@ -868,6 +883,9 @@ export class TileGrid {
                             repeat: 0,
                             yoyo: false,
                             delay: 100,
+                            onStart: () => {
+                                SoundManager.getInstance().playSwooshSound()
+                            },
                             onComplete: () => {
                                 this.effectManager.activeTweens--
                                 groupTween--
@@ -932,10 +950,14 @@ export class TileGrid {
                         angle: 360,
                         scale: 0,
                         duration: 300,
+                        
                     },
                     {
                         texture: ['special'],
                         duration: 0,
+                        onComplete: () => {
+                            SoundManager.getInstance().playDiscoverySound()
+                        }
                     },
                     {
                         scale: 0.6,

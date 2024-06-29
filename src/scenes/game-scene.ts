@@ -1,4 +1,5 @@
 import { CONST } from '../const/const'
+import { SoundManager } from '../helper/sound-manager'
 import { Tile } from '../objects/tile'
 import { TileGrid } from '../objects/tile-grid'
 
@@ -8,6 +9,7 @@ export class GameScene extends Phaser.Scene {
     private playingZone: Phaser.GameObjects.Zone
     private background: Phaser.GameObjects.Sprite
     private backgroundAlpha: Phaser.GameObjects.Rectangle
+    private soundManger: SoundManager
     constructor() {
         super({
             key: 'GameScene',
@@ -15,6 +17,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     public init(): void {
+        this.soundManger = SoundManager.getInstance()
+        this.soundManger.init(this)
         this.background = this.add.sprite(-200, -200, 'bg').setDepth(-2).setOrigin(0)
         this.backgroundAlpha = this.add
             .rectangle(-200, -200, 1000, 1000, 0x000000)
@@ -27,6 +31,10 @@ export class GameScene extends Phaser.Scene {
             .setDepth(1)
             .setInteractive()
         this.tileGrid = new TileGrid(this, CONST.gridHeight, CONST.gridWidth)
+    }
+
+    public create(): void {
+        this.soundManger.playBackgroundMusic()
     }
 
     public update(time: number, delta: number): void {
