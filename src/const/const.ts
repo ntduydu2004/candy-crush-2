@@ -5,13 +5,7 @@ export let CONST = {
     gridHeight: 8,
     tileWidth: 64,
     tileHeight: 72,
-    candyTypes: [
-        'red',
-        'gato',
-        'cream',
-        'purple',
-        'cake'
-    ],
+    candyTypes: ['cracker', 'gato', 'donut', 'candy', 'cake'],
     around: [
         { x: 1, y: 1 },
         { x: 0, y: 1 },
@@ -21,5 +15,11 @@ export let CONST = {
         { x: -1, y: 1 },
         { x: 0, y: -1 },
         { x: 1, y: -1 },
+    ],
+    direction: [
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
     ],
 }

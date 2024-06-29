@@ -7,6 +7,7 @@ export class Tile extends Phaser.GameObjects.Sprite {
     private greenFlame: Phaser.GameObjects.Particles.ParticleEmitter
     private blueFlame: Phaser.GameObjects.Particles.ParticleEmitter
     private redFlame: Phaser.GameObjects.Particles.ParticleEmitter
+    private specialFlame: Phaser.GameObjects.Particles.ParticleEmitter
     constructor(params: ImageConstructor) {
         super(params.scene, params.x, params.y, params.texture, params.frame)
         this.tileNum = 1
@@ -55,11 +56,25 @@ export class Tile extends Phaser.GameObjects.Sprite {
             .startFollow(this)
             .stop()
             .setDepth(0)
+        this.specialFlame = this.scene.add
+            .particles(0, 0, 'white', {
+                color: [0x96e0da, 0x4b4a4f, 0x353438, 0x040404],
+                colorEase: 'quad.out',
+                lifespan: 600,
+                angle: { min: -100, max: -80 },
+                scale: { start: 1, end: 0, ease: 'sine.out' },
+                speed: { min: 50, max: 150 },
+                blendMode: 'SCREEN',
+            })
+            .startFollow(this)
+            .stop()
+            .setDepth(0)
     }
     public stopFlame() {
         this.greenFlame.stop()
         this.blueFlame.stop()
         this.redFlame.stop()
+        this.specialFlame.stop()
     }
     public setTileNumber(tileNum: number): void {
         this.tileNum = tileNum
@@ -68,8 +83,10 @@ export class Tile extends Phaser.GameObjects.Sprite {
             this.greenFlame.start(20)
         } else if (this.tileNum == 5) {
             this.blueFlame.start(20)
-        } else if (this.tileNum > 5) {
+        } else if (this.tileNum == 6) {
             this.redFlame.start(20)
+        } else if (this.tileNum > 6) {
+            this.specialFlame.start()
         }
     }
     public addTileNumber(tileNum: number): void {
@@ -79,8 +96,10 @@ export class Tile extends Phaser.GameObjects.Sprite {
             this.greenFlame.start(20)
         } else if (this.tileNum == 5) {
             this.blueFlame.start(20)
-        } else if (this.tileNum > 5) {
+        } else if (this.tileNum == 6) {
             this.redFlame.start(20)
+        } else if (this.tileNum > 6) {
+            this.specialFlame.start()
         }
     }
     public getTileNumber(): number {

@@ -1,5 +1,5 @@
-import { Scene } from "phaser";
-import { ProgressBar } from "./progress-bar";
+import { Scene } from 'phaser'
+import { ProgressBar } from './progress-bar'
 
 export class ScoreManager {
     private progressBar: ProgressBar
@@ -24,7 +24,7 @@ export class ScoreManager {
     public addScore(tileNumber: number) {
         this.score += tileNumber * 50
         this.score = Math.min(this.score, this.scoreMax)
-        this.progressBar.setProgress(this.score/this.scoreMax)
+        this.progressBar.setProgress(this.score / this.scoreMax)
     }
 
     public reachedMaxScore(): boolean {

@@ -1,6 +1,6 @@
-import { Scene } from "phaser"
+import { Scene } from 'phaser'
 
-export class ProgressBar extends Phaser.GameObjects.Container{
+export class ProgressBar extends Phaser.GameObjects.Container {
     private barRect: Phaser.GameObjects.Rectangle
     private progressRect: Phaser.GameObjects.Rectangle
     private particles: Phaser.GameObjects.Particles.ParticleEmitter
@@ -13,9 +13,9 @@ export class ProgressBar extends Phaser.GameObjects.Container{
         this.particles = this.scene.add.particles(0, 0, 'white_flare', {
             lifespan: 500,
             quantity: 20,
-            y: {min: -12, max: 12},
-            angle: {min: 165, max: 195},
-            speed: {min: 50, max: 100},
+            y: { min: -12, max: 12 },
+            angle: { min: 165, max: 195 },
+            speed: { min: 50, max: 100 },
             scale: { start: 0.1, end: 0 },
         })
         this.add(this.barRect)
@@ -28,14 +28,13 @@ export class ProgressBar extends Phaser.GameObjects.Container{
             targets: this.progressRect,
             width: progress * 496,
             ease: 'linear',
-            duration: 500
+            duration: 500,
         })
         this.scene.add.tween({
             targets: this.particles,
             x: this.progressRect.x - 496 / 2 + progress * 496,
             ease: 'linear',
-            duration: 500
+            duration: 500,
         })
-        
     }
 }

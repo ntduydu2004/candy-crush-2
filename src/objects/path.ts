@@ -1,4 +1,4 @@
-import { Tile } from "./tile"
+import { Tile } from './tile'
 
 export enum PathType {
     NONE,
@@ -22,7 +22,7 @@ export class Path {
         this.square = new Phaser.Geom.Rectangle(50, 100, 400, 400)
 
         this.triangle = new Phaser.Geom.Triangle(50, 500, 250, 200, 450, 500)
-        
+
         this.octagon = new Phaser.Curves.Path(150, 100)
         this.octagon.lineTo(350, 100)
         this.octagon.lineTo(450, 200)
@@ -32,25 +32,25 @@ export class Path {
         this.octagon.lineTo(50, 400)
         this.octagon.lineTo(50, 200)
         this.octagon.lineTo(150, 100)
-        
-        const cx = 250; // Center x
-        const cy = 250; // Center y
-        const R = 200; // Outer radius
-        const r = 95;  // Inner radius
-        this.star = new Phaser.Curves.Path(cx, cy - R); // Start at the top
+
+        const cx = 250 // Center x
+        const cy = 250 // Center y
+        const R = 200 // Outer radius
+        const r = 95 // Inner radius
+        this.star = new Phaser.Curves.Path(cx, cy - R) // Start at the top
 
         for (let i = 0; i < 5; i++) {
             // Outer point
-            let angle = Math.PI / 2 + 2 * Math.PI * i / 5;
-            let x = cx + Math.cos(angle) * R;
-            let y = cy - Math.sin(angle) * R;
-            this.star.lineTo(x, y);
+            let angle = Math.PI / 2 + (2 * Math.PI * i) / 5
+            let x = cx + Math.cos(angle) * R
+            let y = cy - Math.sin(angle) * R
+            this.star.lineTo(x, y)
 
             // Inner point
-            angle += Math.PI / 5;
-            x = cx + Math.cos(angle) * r;
-            y = cy - Math.sin(angle) * r;
-            this.star.lineTo(x, y);
+            angle += Math.PI / 5
+            x = cx + Math.cos(angle) * r
+            y = cy - Math.sin(angle) * r
+            this.star.lineTo(x, y)
         }
         // this.Spath.lineTo(150, 200)
         this.star.closePath()
@@ -74,7 +74,7 @@ export class Path {
             case PathType.OCTAGON: {
                 let dt = 1 / tiles.length
                 let points: Phaser.Geom.Point[] = []
-                for (let i = 0; i < tiles.length; i ++) {
+                for (let i = 0; i < tiles.length; i++) {
                     let position = this.octagon.getPoint(dt * i)
                     points.push(new Phaser.Geom.Point(position.x, position.y))
                 }
@@ -83,7 +83,7 @@ export class Path {
             case PathType.STAR: {
                 let dt = 1 / tiles.length
                 let points: Phaser.Geom.Point[] = []
-                for (let i = 0; i < tiles.length; i ++) {
+                for (let i = 0; i < tiles.length; i++) {
                     let position = this.star.getPoint(dt * i)
                     points.push(new Phaser.Geom.Point(position.x, position.y))
                 }
@@ -98,7 +98,7 @@ export class Path {
         if (this.currentProgress >= 1) this.currentProgress -= 1
         let start = this.currentProgress
         let dt = 1 / tiles.length
-        for (let i = 0; i < tiles.length; i ++) {
+        for (let i = 0; i < tiles.length; i++) {
             let progress = start + i * dt
             if (progress >= 1) progress -= 1
             switch (this.pathType) {
@@ -128,8 +128,6 @@ export class Path {
                     break
                 }
             }
-            
-            
         }
     }
 }

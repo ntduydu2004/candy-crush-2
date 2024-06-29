@@ -14,6 +14,6 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
     },
     parent: 'game',
     scene: [BootScene, GameScene],
-    backgroundColor: '#de3412',
+    backgroundColor: '#000000',
     render: { pixelArt: false, antialias: true },
 }

@@ -4,7 +4,6 @@ import { Tile } from './tile'
 import { CONST } from '../const/const'
 import { Path, PathType } from './path'
 
-
 export class EffectManager {
     public activeTweens: number
     public selectionTween: Phaser.Tweens.Tween
@@ -55,13 +54,27 @@ export class EffectManager {
         }
         this.cross = []
         this.verticalCross = []
-        for (let y = 0; y < row; y ++) {
+        for (let y = 0; y < row; y++) {
             this.cross[y] = []
             this.verticalCross[y] = []
-            for (let x = 0; x < column; x ++) {
-                this.cross[y][x] = this.scene.add.sprite(x * CONST.tileWidth + CONST.tileWidth / 2, y * CONST.tileHeight + CONST.tileHeight / 2, 'cross').setAlpha(0).setDepth(3)
+            for (let x = 0; x < column; x++) {
+                this.cross[y][x] = this.scene.add
+                    .sprite(
+                        x * CONST.tileWidth + CONST.tileWidth / 2,
+                        y * CONST.tileHeight + CONST.tileHeight / 2,
+                        'cross'
+                    )
+                    .setAlpha(0)
+                    .setDepth(3)
                 this.cross[y][x].displayHeight = CONST.tileHeight
-                this.verticalCross[y][x] = this.scene.add.sprite(x * CONST.tileWidth + CONST.tileWidth / 2, y * CONST.tileHeight + CONST.tileHeight / 2, 'cross_vertical').setAlpha(0).setDepth(3)
+                this.verticalCross[y][x] = this.scene.add
+                    .sprite(
+                        x * CONST.tileWidth + CONST.tileWidth / 2,
+                        y * CONST.tileHeight + CONST.tileHeight / 2,
+                        'cross_vertical'
+                    )
+                    .setAlpha(0)
+                    .setDepth(3)
                 this.verticalCross[y][x].displayWidth = CONST.tileWidth
             }
         }
@@ -143,9 +156,10 @@ export class EffectManager {
                 quantity: 1,
                 gravityY: 400,
                 // emitting: false,
-                duration: 2000
+                duration: 2000,
             })
-            .setDepth(5).stop()
+            .setDepth(5)
+            .stop()
         this.rightConfetti = this.scene.add
             .particles(570, 600, 'confetti', {
                 frame: [
@@ -202,10 +216,11 @@ export class EffectManager {
                 quantity: 1,
                 gravityY: 400,
                 // emitting: false,
-                duration: 2000
-            }).stop()
+                duration: 2000,
+            })
+            .stop()
             .setDepth(5)
-            this.path = new Path()
+        this.path = new Path()
     }
     public setPath(pathType: PathType) {
         this.path.setPath(pathType)
@@ -224,7 +239,7 @@ export class EffectManager {
                 duration: 500,
                 onComplete: () => {
                     this.activeTweens--
-                }
+                },
             })
         }
     }
@@ -232,7 +247,6 @@ export class EffectManager {
         if (this.activeTweens == 0) {
             this.path.update(tiles, time, delta)
         }
-        
     }
     public startSelectionTween(selectedTile: Tile) {
         if (this.selectionTween && !this.selectionTween.isDestroyed()) {
@@ -266,16 +280,16 @@ export class EffectManager {
         this.cross[y][x].setAlpha(1).scaleX = 1
         this.verticalCross[y][x].setAlpha(1).scaleY = 1
         this.scene.add.tween({
-            targets: this.cross[y][x], 
+            targets: this.cross[y][x],
             scaleX: 2.5,
             alpha: 0,
-            duration: 500
+            duration: 500,
         })
         this.scene.add.tween({
             targets: this.verticalCross[y][x],
             scaleY: 2.5,
             alpha: 0,
-            duration: 500
+            duration: 500,
         })
     }
     public explode(x: number, y: number) {

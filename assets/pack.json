@@ -53,23 +53,18 @@
       },
       {
         "type": "image",
-        "key": "purple",
-        "url": "./assets/images/purple.png"
+        "key": "cracker",
+        "url": "./assets/images/cracker.png"
       },
       {
         "type": "image",
-        "key": "red",
-        "url": "./assets/images/red.png"
+        "key": "donut",
+        "url": "./assets/images/donut.png"
       },
       {
         "type": "image",
-        "key": "yellow",
-        "url": "./assets/images/yellow.png"
-      },
-      {
-        "type": "image",
-        "key": "cream",
-        "url": "./assets/images/cream.png"
+        "key": "candy",
+        "url": "./assets/images/candy.png"
       },
       {
         "type": "image",
@@ -80,6 +75,11 @@
         "type": "image",
         "key": "gato",
         "url": "./assets/images/gato.png"
+      },
+      {
+        "type": "image",
+        "key": "special",
+        "url": "./assets/images/special.png"
       },
       {
         "type": "image",
