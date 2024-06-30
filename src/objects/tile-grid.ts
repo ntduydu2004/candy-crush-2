@@ -302,7 +302,7 @@ export class TileGrid {
                 yoyo: false,
                 onStart: () => {
                     SoundManager.getInstance().playSwooshSound()
-                }
+                },
             })
 
             this.scene.add.tween({
@@ -950,14 +950,13 @@ export class TileGrid {
                         angle: 360,
                         scale: 0,
                         duration: 300,
-                        
                     },
                     {
                         texture: ['special'],
                         duration: 0,
                         onComplete: () => {
                             SoundManager.getInstance().playDiscoverySound()
-                        }
+                        },
                     },
                     {
                         scale: 0.6,

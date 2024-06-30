@@ -1,4 +1,4 @@
-import { Scene, Sound } from "phaser"
+import { Scene, Sound } from 'phaser'
 
 export class SoundManager {
     private backgroundMusic: Phaser.Sound.WebAudioSound
@@ -10,9 +10,7 @@ export class SoundManager {
     private landingSound: Phaser.Sound.WebAudioSound
     private scene: Scene
     private static instance: SoundManager
-    private constructor() {
-        
-    }
+    private constructor() {}
     public static getInstance(): SoundManager {
         if (!SoundManager.instance) {
             SoundManager.instance = new SoundManager()
@@ -34,7 +32,7 @@ export class SoundManager {
             this.landingSound.play('', {
                 loop: false,
                 volume: 0.5,
-                rate: 3.5
+                rate: 3.5,
             })
         }
     }
@@ -42,14 +40,14 @@ export class SoundManager {
         if (!this.swooshSound.isPlaying) {
             this.swooshSound.play('', {
                 loop: false,
-                volume: 0.5
+                volume: 0.5,
             })
         }
     }
     public playConfettiSound() {
         this.confettiSound.play('', {
             loop: false,
-            volume: 0.5
+            volume: 0.5,
         })
     }
     public playDiscoverySound() {
@@ -62,20 +60,20 @@ export class SoundManager {
         this.explosionSound.play('', {
             loop: false,
             volume: 0.5,
-            seek: 0
+            seek: 0,
         })
     }
     public playYaySound() {
         this.yaySound.play('', {
             loop: false,
             volume: 0.4,
-            seek: 1
+            seek: 1,
         })
     }
     public playBackgroundMusic() {
         this.backgroundMusic.play('', {
             loop: true,
-            volume: 0.1
+            volume: 0.1,
         })
     }
 }
